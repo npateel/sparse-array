@@ -2,55 +2,96 @@
 
 using namespace std;
 
-
 RankBitset::RankBitset(sdsl::int_vector<1>& bits) {
-            this->bits = bits;
-            uint64_t n = bits.size();
-            uint32_t log = log2(n);
-            uint32_t loglog = log2(log);
-            uint32_t s = log * log  / 2;
-            this->superRanks = sdsl::int_vector<0>(n / s, 0, log);
-            for(int i = 0; i < (int64_t)(n/s); i++) {
-                superRanks[i] = naiveRank((i - 1)* (int64_t)s,
-                 i * (int64_t)s);
-            }
-            uint32_t b = log / 2;
-            ranks = sdsl::int_vector<0>(n / b, 0, loglog);
+  this->bits = bits;
+  buildIndex();
+  
+}
+void RankBitset::set(uint64_t index) {
+  bits[index] = 1;
+  buildIndex();
 
-            uint64_t sum = 0;
-            for (int k = 0; k < (int64_t)(n / b); k++) {
-                int64_t j = (int64_t)b*k / s;
-                uint64_t slice = naiveRank((k-1) * (int64_t)b, (k) * (int64_t)b );
-                ranks[k] = slice - superRanks[j] + sum;
-                sum += slice;
-            }
+}
 
+void RankBitset::buildIndex() {
+  uint64_t n = bits.size();
+  uint32_t log = ceil(log2(n));
+  uint32_t loglog = log2(log);
+  uint32_t s = log * log;
+  this->superRanks = sdsl::int_vector<0>(ceil(n / (double)s), 0, log *2);
+  uint64_t sum = 0;
+  for (int i = 0; i < ceil(n / (float)s); i++) {
+    uint64_t slice =naiveRank((i - 1) * (int64_t)s, i * (int64_t)s);
+    superRanks[i] = naiveRank((i - 1) * (int64_t)s, i * (int64_t)s) + sum;
+    sum += slice;
+  }
+  uint32_t b = log;
+  ranks = sdsl::int_vector<0>(superRanks.size() * b, 0, loglog *2);
 
+  sum = 0;
+  for (int k = 0; k < ranks.size(); k++) {
+    int64_t j = k / b;
+    uint64_t slice = naiveRank((k - 1) * (int64_t)b, (k) * (int64_t)b);
+    ranks[k] = slice - superRanks[j] + sum;
+    sum += slice;
+  }
+}
 
-        }
 uint64_t RankBitset::overhead() {
-    return superRanks.bit_size() + ranks.bit_size() + subRanks.bit_size();
+  return superRanks.bit_size() + ranks.bit_size();
 }
 uint64_t RankBitset::rank1(uint64_t index) {
-    uint32_t blockIndex = index / bits.size() * ranks.size();
+  uint32_t b = ceil(log2(bits.size()));
+  uint32_t blockIndex = index / b * b;
 
-    uint64_t rank = bits.get_int(blockIndex, index - blockIndex + 1);
-    return superRanks[index / bits.size() * superRanks.size()] 
-    + ranks[index / bits.size() * ranks.size() ] + 
-    __popcount(rank);
+  uint64_t rank = 0;
+  if (blockIndex >= 0 && index < bits.size()) {
+    rank = bits.get_int(blockIndex, index - blockIndex + 1);
+  }
+  return superRanks[index / b / b] + ranks[index / b] + __popcount(rank);
 }
-uint32_t RankBitset::naiveRank(int64_t start, int64_t end) {
 
-    if (start < 0) {
-        start =0;
-    }
-    uint64_t *raw = bits.data();
-    raw += (start / sizeof(uint64_t));
-    uint64_t rank = 0;
-    while (start < end - 64) {
-        rank += __popcount(*(raw + start / 64));
-        start += 64;
-    }
-    rank += __popcount( bits.get_int(start, end - start));
-    return rank;
+// gets rank of [start, end)
+uint32_t RankBitset::naiveRank(int64_t start, int64_t end) {
+  if (start < 0) {
+    return 0;
+  }
+  if (end >= bits.size()) {
+    return 0;
+  }
+
+  uint64_t rank = 0;
+  while (start < end -64) {
+    uint64_t val = bits.get_int(start, 64);
+    rank += __popcount(val);
+    start += 64;
+  }
+  rank += __popcount(bits.get_int(start, end - start));
+  return rank;
+}
+
+void RankBitset::load(string& filename) {
+  ifstream in;
+  in.open(filename);
+  load(in);
+  in.close();
+}
+
+void RankBitset::load(ifstream& in) {
+  bits.load(in);
+  superRanks.load(in);
+  ranks.load(in);
+}
+
+void RankBitset::save(string& filename) {
+  ofstream out;
+  out.open(filename);
+  save(out);
+  out.close();
+}
+
+void RankBitset::save(ofstream& out) {
+  bits.serialize(out);
+  superRanks.serialize(out);
+  ranks.serialize(out); 
 }

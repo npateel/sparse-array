@@ -9,12 +9,12 @@ TARGET = bin/rank
 
 all: $(TARGET)
 
-$(TARGET): build/rank.o build/main.o
-	$(CC) $(CFLAGS) -o rank build/rank.o build/main.o $(LDFLAGS)	
+$(TARGET): build/rank.o build/main.o build/select.o
+	$(CC) $(CFLAGS) -o rank build/rank.o build/main.o build/select.o $(LDFLAGS)	
 build/%.o: src/%.cpp
 	$(CC) $(CFLAGS) $< -c -o $@ $(LDFLAGS)
 
 
 
 clean:
-	rm -rf *.o $(TARGET)
+	rm -rf build/*.o $(TARGET)

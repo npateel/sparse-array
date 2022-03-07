@@ -9,14 +9,7 @@
 #include <bit>
 using namespace std;
 
-static inline uint32_t log2(const uint32_t x) {
-  uint32_t y;
-  asm ( "\tbsr %1, %0\n"
-      : "=r"(y)
-      : "r" (x)
-  );
-  return y;
-}
+
 
 
 class RankBitset
@@ -26,7 +19,10 @@ class RankBitset
         uint64_t overhead();
         uint64_t rank1(uint64_t index);
         void save(string& fname);
+        void save(ofstream& out);
         void load(string& fname);
+        void load(ifstream& in);
+        void set(uint64_t index);
         sdsl::int_vector<0> superRanks;
         sdsl::int_vector<0> ranks;
         sdsl::int_vector<0> subRanks;
@@ -34,15 +30,12 @@ class RankBitset
     private:
         // computes rank [start, end)
         uint32_t naiveRank(int64_t start, int64_t end);
+        void buildIndex();
 };
 
-class SelectBitset
+class SelectBitset : public RankBitset
 {
     public:
-        SelectBitset(RankBitset& bits);
         uint64_t select1(uint64_t index);
-        uint64_t overhead();
-        void save(string& fname);
-        void load(string& fname);
 };
 #endif
