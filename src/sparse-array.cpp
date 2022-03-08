@@ -1,21 +1,28 @@
 #include "sparse-array.h"
 
-template <class T>
-void SparseArray<T>::create(uint64_t size) {
-    sdsl::bit_vector bits(size);
-    locations(r);
+SparseArray::SparseArray() {
+    locations;
+    elements = vector<string>(0);
 }
 
-template <class T>
-void SparseArray<T>::append(T elem, uint64_t pos) {
+SparseArray::SparseArray(uint64_t size)  {
+    sdsl::bit_vector ve(size);
+    locations = SelectBitset(ve);
+}
+
+void SparseArray::create(uint64_t size) {
+    sdsl::bit_vector ve(size);
+    locations = SelectBitset(ve);
+}
+
+void SparseArray::append(string elem, uint64_t pos) {
     locations.set(pos);
     
     elements.push_back(elem);
     
 }
 
-template <class T>
-bool SparseArray<T>::get_at_rank(uint64_t r, T& elem) {
+bool SparseArray::get_at_rank(uint64_t r, string& elem) {
     if (elements.size() < r || r == 0) {
         return false;
     }
@@ -25,8 +32,8 @@ bool SparseArray<T>::get_at_rank(uint64_t r, T& elem) {
 
 }
 
-template <class T>
-bool SparseArray<T>::get_at_index(uint64_t index, T& elem) {
+
+bool SparseArray::get_at_index(uint64_t index, string& elem) {
     if (index > locations.bits.size() || !locations.bits[index]) {
         return false;
     }
@@ -35,22 +42,22 @@ bool SparseArray<T>::get_at_index(uint64_t index, T& elem) {
     return true;
 
 }
-template <class T>
-uint64_t SparseArray<T>::num_elem_at(uint64_t index) {
+
+uint64_t SparseArray::num_elem_at(uint64_t index) {
     return locations.rank1(index);
 }
-template <class T>
-inline uint64_t SparseArray<T>::size() {
+
+uint64_t SparseArray::size() {
     return locations.bits.size();
 }
 
-template <class T>
-inline uint64_t SparseArray<T>::num_elem() {
+
+uint64_t SparseArray::num_elem() {
     return elements.size();
 }
 
-template <class T>
-inline void SparseArray<T>::save(string& fname) {
+
+void SparseArray::save(string& fname) {
     ofstream out;
     out.open(fname);
     out << elements.size() << endl;
@@ -62,7 +69,7 @@ inline void SparseArray<T>::save(string& fname) {
     out.close();
 }
 
-inline void SparseArray<string>::load(string& fname) {
+void SparseArray::load(string& fname) {
     ifstream in;
     in.open(fname);
     string line;
@@ -77,21 +84,21 @@ inline void SparseArray<string>::load(string& fname) {
     in.close();
 }
 
-template <class T>
-uint64_t SparseArray<T>::size_bytes() {
-    return locations.bits.bit_size / 8 + 
-            locations.ranks.bit_size / 8 +
-            locations.superRanks.bit_size / 8 +
+
+uint64_t SparseArray::size_bytes() {
+    return locations.bits.bit_size() / 8 + 
+            locations.ranks.bit_size() / 8 +
+            locations.superRanks.bit_size() / 8 +
             sizeof(locations.bits) + sizeof(locations.ranks) + 
             sizeof(locations.superRanks)
             + sizeof(elements) + elements[0].size()*elements.size();
 }
 
-template <class T>
-uint64_t SparseArray<T>::overhead() {
-    return locations.bits.bit_size / 8 + 
-            locations.ranks.bit_size / 8 +
-            locations.superRanks.bit_size / 8 +
+
+uint64_t SparseArray::overhead() {
+    return locations.bits.bit_size() / 8 + 
+            locations.ranks.bit_size() / 8 +
+            locations.superRanks.bit_size() / 8 +
             sizeof(locations.bits) + sizeof(locations.ranks) + 
             sizeof(locations.superRanks);
 }

@@ -1,6 +1,6 @@
+#include "rank.h"
 #include <iostream>
 #include <stdlib.h>
-#include "rank.h"
 #include "sparse-array.h"
 #include <vector>
 #include <sdsl/bit_vectors.hpp>
@@ -84,7 +84,7 @@ void test_vectors() {
   out.close();
 }
 
-void populate_sparse_array(SparseArray<string>& arr, double sparsity) {
+void populate_sparse_array(SparseArray& arr, double sparsity) {
   uint64_t size = arr.size();
   vector<int> locations;
   for (uint i = 0; i < sparsity * size; i++) {
@@ -98,10 +98,9 @@ void populate_sparse_array(SparseArray<string>& arr, double sparsity) {
   }
 }
 
-template <class T>
-double test_get_at_rank(SparseArray<T>& arr, uint32_t queries) {
+double test_get_at_rank(SparseArray& arr, uint32_t queries) {
   uint elements = arr.num_elem();
-  T elem;
+  string elem;
   auto t1 = chrono::high_resolution_clock::now();
 
   for (uint i = 0; i < queries; i++) {
@@ -112,10 +111,9 @@ double test_get_at_rank(SparseArray<T>& arr, uint32_t queries) {
   return ms_double.count();
 }
 
-template <class T>
-double test_get_at_index(SparseArray<T>& arr, uint32_t queries) {
+double test_get_at_index(SparseArray& arr, uint32_t queries) {
   uint elements = arr.size();
-  T elem;
+  string elem;
   auto t1 = chrono::high_resolution_clock::now();
 
   for (uint i = 0; i < queries; i++) {
@@ -126,10 +124,9 @@ double test_get_at_index(SparseArray<T>& arr, uint32_t queries) {
   return ms_double.count();
 }
 
-template <class T>
-double test_num_elem_at(SparseArray<T>& arr, uint32_t queries) {
+double test_num_elem_at(SparseArray& arr, uint32_t queries) {
   uint elements = arr.size();
-  T elem;
+  string elem;
   auto t1 = chrono::high_resolution_clock::now();
 
   for (uint i = 0; i < queries; i++) {
@@ -151,7 +148,8 @@ void test_sparse_array() {
 
   for (uint64_t size: sizes) {
     for (double sparsity: sparsities) {
-      SparseArray<string> arr(size);
+      SparseArray arr;
+	  arr.create(size);
       populate_sparse_array(arr, sparsity);
       double rank_time = test_get_at_rank(arr, 100);
       double index_time = test_get_at_index(arr, 100);

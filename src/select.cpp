@@ -1,5 +1,7 @@
 #include "rank.h"
 
+
+
 uint64_t SelectBitset::select1(uint64_t index) {
     int64_t start = 0;
     int64_t end = bits.size() - 1;
