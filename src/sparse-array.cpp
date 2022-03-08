@@ -76,3 +76,22 @@ inline void SparseArray<string>::load(string& fname) {
     locations.load(in);
     in.close();
 }
+
+template <class T>
+uint64_t SparseArray<T>::size_bytes() {
+    return locations.bits.bit_size / 8 + 
+            locations.ranks.bit_size / 8 +
+            locations.superRanks.bit_size / 8 +
+            sizeof(locations.bits) + sizeof(locations.ranks) + 
+            sizeof(locations.superRanks)
+            + sizeof(elements) + elements[0].size()*elements.size();
+}
+
+template <class T>
+uint64_t SparseArray<T>::overhead() {
+    return locations.bits.bit_size / 8 + 
+            locations.ranks.bit_size / 8 +
+            locations.superRanks.bit_size / 8 +
+            sizeof(locations.bits) + sizeof(locations.ranks) + 
+            sizeof(locations.superRanks);
+}

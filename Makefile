@@ -9,7 +9,7 @@ TARGET = bin/rank
 
 all: $(TARGET)
 
-$(TARGET): build/rank.o build/main.o build/select.o
+$(TARGET): build/rank.o build/main.o build/select.o build/sparse-array.o
 	$(CC) $(CFLAGS) -o rank build/rank.o build/main.o build/select.o $(LDFLAGS)	
 build/%.o: src/%.cpp
 	$(CC) $(CFLAGS) $< -c -o $@ $(LDFLAGS)

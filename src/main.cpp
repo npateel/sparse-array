@@ -1,6 +1,8 @@
 #include <iostream>
 #include <stdlib.h>
 #include "rank.h"
+#include "sparse-array.h"
+#include <vector>
 #include <sdsl/bit_vectors.hpp>
 #include <chrono>
 using namespace std;
@@ -80,6 +82,89 @@ void test_vectors() {
         << endl;
   }
   out.close();
+}
+
+void populate_sparse_array(SparseArray<string>& arr, double sparsity) {
+  uint64_t size = arr.size();
+  vector<int> locations;
+  for (uint i = 0; i < sparsity * size; i++) {
+    locations.push_back(rand() % size);
+  }
+
+  sort(locations.begin(), locations.end());
+
+  for (uint i = 0; i < locations.size(); i++) {
+    arr.append(to_string(i % 10), locations[i]);
+  }
+}
+
+template <class T>
+double test_get_at_rank(SparseArray<T>& arr, uint32_t queries) {
+  uint elements = arr.num_elem();
+  T elem;
+  auto t1 = chrono::high_resolution_clock::now();
+
+  for (uint i = 0; i < queries; i++) {
+    arr.get_at_rank(rand() % elements + 1, elem);
+  }
+  auto t2 = chrono::high_resolution_clock::now();
+  chrono::duration<double, milli> ms_double = t2 - t1;
+  return ms_double.count();
+}
+
+template <class T>
+double test_get_at_index(SparseArray<T>& arr, uint32_t queries) {
+  uint elements = arr.size();
+  T elem;
+  auto t1 = chrono::high_resolution_clock::now();
+
+  for (uint i = 0; i < queries; i++) {
+    arr.get_at_index(rand() % elements + 1, elem);
+  }
+  auto t2 = chrono::high_resolution_clock::now();
+  chrono::duration<double, milli> ms_double = t2 - t1;
+  return ms_double.count();
+}
+
+template <class T>
+double test_num_elem_at(SparseArray<T>& arr, uint32_t queries) {
+  uint elements = arr.size();
+  T elem;
+  auto t1 = chrono::high_resolution_clock::now();
+
+  for (uint i = 0; i < queries; i++) {
+    arr.num_elem_at(rand() % elements);
+  }
+  auto t2 = chrono::high_resolution_clock::now();
+  chrono::duration<double, milli> ms_double = t2 - t1;
+  return ms_double.count();
+}
+
+void test_sparse_array() {
+  vector<uint64_t> sizes {1000, 10000, 100000, 1000000};
+  vector<double> sparsities {1.0/100, 5.0/100, 10.0/100};
+
+  ofstream out;
+  out.open("array.csv");
+
+  out << "size,sparsity,get_at_rank_time,get_at_index_time,num_elem_at_time,size_bytes,overhead" << endl;
+
+  for (uint64_t size: sizes) {
+    for (double sparsity: sparsities) {
+      SparseArray<string> arr(size);
+      populate_sparse_array(arr, sparsity);
+      double rank_time = test_get_at_rank(arr, 100);
+      double index_time = test_get_at_index(arr, 100);
+      double elem_at_time = test_num_elem_at(arr, 100);
+      uint64_t size = arr.size_bytes();
+      uint64_t overhead = arr.overhead();
+      out << size << "," << sparsity << ","
+       << rank_time << "," << index_time << ","
+       << elem_at_time << "," << size << "," << overhead << endl;
+    }
+    out.close();
+  }
+
 }
 
 int main() {

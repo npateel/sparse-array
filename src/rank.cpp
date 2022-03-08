@@ -9,7 +9,20 @@ RankBitset::RankBitset(sdsl::int_vector<1>& bits) {
 }
 void RankBitset::set(uint64_t index) {
   bits[index] = 1;
-  buildIndex();
+  uint32_t b = ceil(log2(bits.size()));
+
+  uint64_t superBlockIndex = index / b / b;
+  uint64_t blockIndex = index / b;
+
+  for (uint i = superBlockIndex + 1; i < superRanks.size(); i++) {
+    superRanks[i]++;
+  }
+
+  for (uint i = blockIndex + 1; i < ranks.size(); i++) {
+    ranks[i]++;
+  }
+
+
 
 }
 
@@ -38,7 +51,8 @@ void RankBitset::buildIndex() {
 }
 
 uint64_t RankBitset::overhead() {
-  return superRanks.bit_size() + ranks.bit_size();
+  return superRanks.bit_size() + ranks.bit_size() 
+  + sizeof(ranks) + sizeof(superRanks) + sizeof(this);
 }
 uint64_t RankBitset::rank1(uint64_t index) {
   uint32_t b = ceil(log2(bits.size()));
