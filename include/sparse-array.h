@@ -6,6 +6,7 @@
 
 class SparseArray {
     public:
+        SparseArray();
         SparseArray(uint64_t size);
         void create(uint64_t size);
         void append(string elem, uint64_t pos);

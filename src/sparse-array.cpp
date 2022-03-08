@@ -1,13 +1,10 @@
 #include "sparse-array.h"
 
-SparseArray::SparseArray() {
-    locations;
-    elements = vector<string>(0);
-}
-
-SparseArray::SparseArray(uint64_t size)  {
+SparseArray::SparseArray() = default;
+SparseArray::SparseArray(uint64_t size) {
     sdsl::bit_vector ve(size);
     locations = SelectBitset(ve);
+    elements = vector<string>(0);
 }
 
 void SparseArray::create(uint64_t size) {
