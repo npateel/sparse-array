@@ -10,7 +10,7 @@ template <class T>
 void SparseArray<T>::append(T elem, uint64_t pos) {
     locations.set(pos);
     
-    elements.insert(elements.begin + (locations.rank1(pos) - 1), elem);
+    elements.push_back(elem);
     
 }
 
