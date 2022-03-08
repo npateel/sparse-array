@@ -37,7 +37,6 @@ class SelectBitset : public RankBitset
 {
     public:
         uint64_t select1(uint64_t index);
-        SelectBitset() = default;
         SelectBitset(sdsl::int_vector<1>& bits) : RankBitset(bits){}
 };
 #endif

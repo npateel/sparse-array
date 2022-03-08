@@ -148,8 +148,8 @@ void test_sparse_array() {
 
   for (uint64_t size: sizes) {
     for (double sparsity: sparsities) {
-      SparseArray arr;
-	  arr.create(size);
+      sdsl::bit_vector v(size, 0);
+      SparseArray arr(v);
       populate_sparse_array(arr, sparsity);
       double rank_time = test_get_at_rank(arr, 100);
       double index_time = test_get_at_index(arr, 100);
