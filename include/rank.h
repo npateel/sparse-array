@@ -27,10 +27,11 @@ class RankBitset
         sdsl::int_vector<0> ranks;
         sdsl::int_vector<0> subRanks;
         sdsl::int_vector<1> bits;
+        void buildIndex();
     private:
         // computes rank [start, end)
         uint32_t naiveRank(int64_t start, int64_t end);
-        void buildIndex();
+        bool valid_index;
 };
 
 class SelectBitset : public RankBitset

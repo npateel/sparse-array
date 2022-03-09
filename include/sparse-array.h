@@ -16,11 +16,12 @@ class SparseArray {
         uint64_t size_bytes();
         uint64_t overhead();
         uint64_t num_elem();
+        void build_index();
         void save(string& fname);
         void load(string& fname);
+        SelectBitset locations;
     private:
         vector<string> elements;
-        SelectBitset locations;
 
 };
 

@@ -10,7 +10,7 @@ uint64_t SelectBitset::select1(uint64_t index) {
     while (start <= end) {
         mid = (start + end) / 2;
         int64_t rank = rank1(mid);
-        if (rank >= index) {
+        if (rank >= (long)index) {
             end = mid -1;
             result = mid;
         } else {

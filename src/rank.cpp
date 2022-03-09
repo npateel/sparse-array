@@ -9,21 +9,7 @@ RankBitset::RankBitset(sdsl::int_vector<1>& bits) {
 }
 void RankBitset::set(uint64_t index) {
   bits[index] = 1;
-  uint32_t b = ceil(log2(bits.size()));
-
-  uint64_t superBlockIndex = index / b / b;
-  uint64_t blockIndex = index / b;
-
-  for (uint i = superBlockIndex + 1; i < superRanks.size(); i++) {
-    superRanks[i]++;
-  }
-
-  for (uint i = blockIndex + 1; i < ranks.size(); i++) {
-    ranks[i]++;
-  }
-
-
-
+  valid_index = false;
 }
 
 void RankBitset::buildIndex() {
@@ -42,12 +28,13 @@ void RankBitset::buildIndex() {
   ranks = sdsl::int_vector<0>(superRanks.size() * b, 0, loglog *2);
 
   sum = 0;
-  for (int k = 0; k < ranks.size(); k++) {
+  for (int k = 0; k < (long)ranks.size(); k++) {
     int64_t j = k / b;
     uint64_t slice = naiveRank((k - 1) * (int64_t)b, (k) * (int64_t)b);
     ranks[k] = slice - superRanks[j] + sum;
     sum += slice;
   }
+  valid_index = true;
 }
 
 uint64_t RankBitset::overhead() {
@@ -55,6 +42,11 @@ uint64_t RankBitset::overhead() {
   + sizeof(ranks) + sizeof(superRanks) + sizeof(this);
 }
 uint64_t RankBitset::rank1(uint64_t index) {
+  if (!valid_index) {
+    buildIndex();
+  }  
+
+
   uint32_t b = ceil(log2(bits.size()));
   uint32_t blockIndex = index / b * b;
 
@@ -70,7 +62,7 @@ uint32_t RankBitset::naiveRank(int64_t start, int64_t end) {
   if (start < 0) {
     return 0;
   }
-  if (end >= bits.size()) {
+  if (end >= (long)bits.size()) {
     return 0;
   }
 
@@ -85,6 +77,7 @@ uint32_t RankBitset::naiveRank(int64_t start, int64_t end) {
 }
 
 void RankBitset::load(string& filename) {
+
   ifstream in;
   in.open(filename);
   load(in);
@@ -105,6 +98,9 @@ void RankBitset::save(string& filename) {
 }
 
 void RankBitset::save(ofstream& out) {
+if (!valid_index) {
+    buildIndex();
+  }
   bits.serialize(out);
   superRanks.serialize(out);
   ranks.serialize(out); 

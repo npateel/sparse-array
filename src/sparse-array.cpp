@@ -10,7 +10,6 @@ void SparseArray::create(uint64_t size) {
 
 void SparseArray::append(string elem, uint64_t pos) {
     locations.set(pos);
-    
     elements.push_back(elem);
     
 }
@@ -19,10 +18,9 @@ bool SparseArray::get_at_rank(uint64_t r, string& elem) {
     if (elements.size() < r || r == 0) {
         return false;
     }
-    
-    get_at_index(locations.select1(r), elem);
+    //get_at_index(locations.select1(r), elem);
+    elem= elements[r-1];
     return true;
-
 }
 
 
@@ -30,6 +28,7 @@ bool SparseArray::get_at_index(uint64_t index, string& elem) {
     if (index > locations.bits.size() || !locations.bits[index]) {
         return false;
     }
+    // cout << "index: " << index << endl;
     
     elem = elements[locations.rank1(index) -1];
     return true;
@@ -49,12 +48,16 @@ uint64_t SparseArray::num_elem() {
     return elements.size();
 }
 
+void SparseArray::build_index() {
+    locations.buildIndex();
+}
+
 
 void SparseArray::save(string& fname) {
     ofstream out;
     out.open(fname);
     out << elements.size() << endl;
-    for (int i = 0; i < elements.size(); i++) {
+    for (uint i = 0; i < elements.size(); i++) {
         out << elements[i] << endl;
     }
 
