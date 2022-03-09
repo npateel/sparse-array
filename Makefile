@@ -1,7 +1,7 @@
 
 CC = g++
 
-CFLAGS = -std=c++2a -g -Wall -Wno-deprecated-declarations  -I/home/npateel/include -Iinclude -L/home/npateel/lib
+CFLAGS = -std=c++2a -g -Wall -Wno-deprecated-declarations  -I~/include -Iinclude -L~/lib
 
 LDFLAGS = -lsdsl -ldivsufsort -ldivsufsort64
 
