@@ -170,15 +170,10 @@ void test_sparse_array() {
       populate_sparse_array(arr, sparsity);
 	  double indexing_time = test_build_index(arr);
       double rank_time = test_get_at_rank(arr, 100);
-	  cout << "rank success" << endl;
       double index_time = test_get_at_index(arr, 100);
-	  cout << "index success" << endl;
       double elem_at_time = test_num_elem_at(arr, 100);
-	  cout << "numel success" << endl;
       uint64_t size_bytes = arr.size_bytes();
-	  cout << "size bytes success" << endl;
       uint64_t overhead = arr.overhead();
-	  cout << "overhead success" << endl;
       out << size << "," << sparsity << ","
        <<  indexing_time << "," << rank_time << "," << index_time << ","
        << elem_at_time << "," << size_bytes << "," << overhead << endl;
